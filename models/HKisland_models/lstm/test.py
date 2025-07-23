@@ -7,6 +7,7 @@ import pickle
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
 def cal_cv_rmse(pred, y_true):
@@ -37,14 +38,8 @@ def draw_results(label_list, pred_list, model_name):
     fig.add_subplot(111)
     plt.plot(range(len(pred_list)), pred_list, color='b', linewidth=1, label='Predicted CoolingLoad')
     plt.plot(range(len(label_list)), label_list, color='r', linewidth=1, label='CoolingLoad')
-    # plt.plot(range(len(mae_list)), mae_list, color='red', label='error')
-    # title = '{}, MAE={:.3f}, RMSE={:.3f}, CV-RMSE={:.3f}%'.format(model_name, mae, rmse, cv_rmse * 100)
     plt.title('Actual vs Forcast Cooling Load', loc='left')
     plt.ylabel('CoolingLoad')
-
-    # ticks = np.arange(0, len(pred_list) // (2 * 30 * 24) + 1) * (2 * 30 * 24)
-    # labels = ['2023-01', '2023-03', '2023-05', '2023-07', '2023-09', '2023-11', '2024-01']
-    # plt.xticks(ticks, labels)
     plt.xlabel('Timestamp')
     plt.legend(loc='upper right')
     plt.show()
@@ -55,6 +50,9 @@ def draw_results(label_list, pred_list, model_name):
 def test_lstm(building_name):
     print(building_name)
     model_name = 'lstm_{}'.format(building_name)
+
+    # Dictionary to store loss values for this building
+    loss_dict = {building_name: []}
 
     # load data
     with open(r'tmp_pkl_data/{}_hkisland_save_dict.pkl'.format(building_name), 'rb') as r:
@@ -78,12 +76,20 @@ def test_lstm(building_name):
     save_path = r'models/trained_models/{}_24h.pt'.format(model_name)
     model.load_state_dict(torch.load(save_path))
 
+    # Define loss function
+    loss_fn = torch.nn.MSELoss()
+
     # start testing
     preds = []
-    for data_x, _ in test_loader:
+    for data_x, data_y in test_loader:
         data_x = data_x.to(torch.float32)
+        data_y = data_y.to(torch.float32)
 
         pred = model(data_x)
+        # Calculate loss for this batch
+        loss = loss_fn(pred, data_y)
+        loss_dict[building_name].append(loss.item())
+
         pred = pred.detach().numpy().squeeze()
         preds.append(pred)
 
@@ -109,4 +115,3 @@ def test_lstm(building_name):
         pred_list.append(_pred_list[k] * (load_max - load_min) + load_min)
 
     draw_results(label_list, pred_list, model_name)
-
