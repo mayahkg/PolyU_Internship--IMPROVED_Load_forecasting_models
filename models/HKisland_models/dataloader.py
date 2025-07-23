@@ -54,9 +54,9 @@ def build_original_hk_island_load_table(df):
 def fill_value_into_null(df):
     df = df.copy()  # Avoid modifying the input DataFrame directly
     mask_cl = df['coolingLoad'] == 0
-    df.loc[mask_cl, 'coolingLoad'] = df['coolingLoad'].shift(24)[mask_cl]
+    df.loc[mask_cl, 'coolingLoad'] = df['coolingLoad'].shift(168)[mask_cl]
     mask_frd = df['flow_rate_delta'] == 0
-    df.loc[mask_frd, 'flow_rate_delta'] = df['flow_rate_delta'].shift(24)[mask_frd]
+    df.loc[mask_frd, 'flow_rate_delta'] = df['flow_rate_delta'].shift(168)[mask_frd]
     print(f"Filled {mask_cl.sum()} coolingLoad zeros and {mask_frd.sum()} flow_rate_delta zeros")
     return df
 

@@ -6,7 +6,7 @@ temperature_max = 40
 temperature_min = 0
 
 seq_length = 24 # input length of sequence, can try change the sequence to, what you are predicting
-input_dim = 33 # number of features
+input_dim = 35 # number of features
 
 # parameters of the model, adjust with features
 sparse_output_dim = 64
