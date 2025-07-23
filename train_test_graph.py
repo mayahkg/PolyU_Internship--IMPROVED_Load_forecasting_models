@@ -1,66 +1,133 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-from config import building_name_list
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
-# Function to load loss data
-def load_loss_data(building_name, model_name='lstm'):
-    """
-    Load train and test loss data from .npy files for a given building and model.
-    Uses allow_pickle=True to handle object arrays safely.
-    """
-    train_loss_path = f'./results/{building_name}/lstm_train_loss.npy'
-    test_loss_path = f'./results/{building_name}/lstm_test_loss.npy'
-    
-    # Check if files exist
-    if not os.path.exists(train_loss_path):
-        raise FileNotFoundError(f"Train loss file not found: {train_loss_path}")
-    if not os.path.exists(test_loss_path):
-        raise FileNotFoundError(f"Test loss file not found: {test_loss_path}")
-    
-    try:
-        # Load data with allow_pickle=True to handle object arrays
-        train_loss = np.load(train_loss_path, allow_pickle=True)
-        test_loss = np.load(test_loss_path, allow_pickle=True)
-        
-        # Ensure data is numeric (convert if necessary)
-        train_loss = np.array(train_loss, dtype=float)
-        test_loss = np.array(test_loss, dtype=float)
-        
-        return train_loss, test_loss
-    except Exception as e:
-        raise ValueError(f"Error loading loss data for {building_name}: {str(e)}")
+# Data for each model (training loss and cv_rmse)
+models = {
+    'lstm_CP1_24h': {
+        'loss': [
+            0.10100561630551833, 0.056196903279663, 0.05009943361047411, 0.04744202945462979,
+            0.04603828862309456, 0.04469176044646841, 0.043630531683129116, 0.04290476792158872,
+            0.042438508983511126, 0.04164034892281476
+        ],
+        'cv_rmse': 0.3298889622854889
+    },
+    'lstm_CP4_24h': {
+        'loss': [
+            0.09146170658025428, 0.05852419230407172, 0.052914078272607204, 0.05049055996928772,
+            0.04895680884483957, 0.04807720934278774, 0.04708664048544682, 0.04619389992669551,
+            0.04562468024609733, 0.04521114403640267
+        ],
+        'cv_rmse': 0.33584039352559175
+    },
+    'lstm_CPN_24h': {
+        'loss': [
+            0.08223502315692048, 0.0385062881370089, 0.03255692170237872, 0.030802316074051074,
+            0.02984224895098761, 0.029504052961050575, 0.02950192234520592, 0.029047804106193693,
+            0.029231970045548766, 0.02886791026859141
+        ],
+        'cv_rmse': 0.23454275768867155
+    },
+    'lstm_CPS_24h': {
+        'loss': [
+            0.13704274018315504, 0.12402560942581971, 0.12262952066686032, 0.1193201094865799,
+            0.11398359502319001, 0.10997901269554222, 0.10654398140898586, 0.10381624053647048,
+            0.10090815836060656, 0.09821245688809095
+        ],
+        'cv_rmse': 0.5504248368597708
+    },
+    'lstm_DEH_24h': {
+        'loss': [
+            0.08693863750591765, 0.053783297049303125, 0.04844052834014823, 0.045569455699764026,
+            0.043675779181457784, 0.04256231925130761, 0.04170307397407337, 0.04105781464681138,
+            0.04044805631639749, 0.040147215862126245
+        ],
+        'cv_rmse': 0.5841680355538649
+    },
+    'lstm_DOH_24h': {
+        'loss': [
+            0.11393358444210387, 0.09324467231104844, 0.08868618391073534, 0.08497693960684059,
+            0.08081583983271662, 0.07815038040280342, 0.07672663087392376, 0.07626800617053561,
+            0.07514191505900264, 0.07427092899915076
+        ],
+        'cv_rmse': 0.763693819930191
+    },
+    'lstm_OIE_24h': {
+        'loss': [
+            0.06871857612893201, 0.039669484898879906, 0.03506185902633529, 0.032883678454959736,
+            0.03183819221305675, 0.03155425065399512, 0.03032608130487843, 0.029769935321224773,
+            0.029632708719135193, 0.02909748954023572
+        ],
+        'cv_rmse': 0.4435802634437575
+    },
+    'lstm_OXH_24h': {
+        'loss': [
+            0.06732158886565678, 0.042696208261169384, 0.037227395840961, 0.03521191969891821,
+            0.03374651553568201, 0.03299526316856129, 0.03259257044967102, 0.032188355517776115,
+            0.03169558272845503, 0.03147497990479072
+        ],
+        'cv_rmse': 0.40493631065796815
+    },
+    'lstm_LIH_24h': {
+        'loss': [
+            0.05893742396448651, 0.03571535302937901, 0.032382505408821316, 0.030982472396788807,
+            0.030255375606735257, 0.029339009107355655, 0.029060323484731417, 0.028696537058610114,
+            0.028486139949982184, 0.028237011977029543
+        ],
+        'cv_rmse': 0.6148558504796939
+    }
+}
 
-# Plotting function
-def plot_train_test_loss(building_name, train_loss, test_loss):
-    """
-    Plot and save train vs test loss for a given building.
-    """
-    plt.figure(figsize=(10, 6))
-    epochs = range(1, len(train_loss) + 1)
-    
-    plt.plot(epochs, train_loss, label='Train Loss', color='blue', linewidth=2)
-    plt.plot(epochs, test_loss, label='Test Loss', color='orange', linewidth=2)
-    
-    plt.title(f'Train vs Test Loss for LSTM Model - {building_name}')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.grid(True)
-    
-    # Save the plot
-    os.makedirs(f'./plots/{building_name}', exist_ok=True)
-    plt.savefig(f'./plots/{building_name}/lstm_train_test_loss.png')
-    plt.close()
+# Create the plot
+fig = make_subplots()
 
-# Main execution
-if __name__ == '__main__':
-    for building_name in building_name_list:
-        try:
-            # Load loss data
-            train_loss, test_loss = load_loss_data(building_name, model_name='lstm')
-            # Plot the train vs test loss
-            plot_train_test_loss(building_name, train_loss, test_loss)
-            print(f"Successfully generated plot for {building_name}")
-        except (FileNotFoundError, ValueError) as e:
-            print(f"Error for {building_name}: {e}")
+# Add traces for each model (training loss and cv_rmse)
+epochs = list(range(1, 11))
+colors = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22'
+]  # Distinct colors for each model
+for i, (model_name, data) in enumerate(models.items()):
+    # Training loss trace
+    fig.add_trace(
+        go.Scatter(
+            x=epochs,
+            y=data['loss'],
+            mode='lines+markers',
+            name=f'{model_name} (Train Loss)',
+            line=dict(width=2, color=colors[i]),
+            marker=dict(size=6, color=colors[i])
+        )
+    )
+    # cv_rmse trace
+    fig.add_trace(
+        go.Scatter(
+            x=[1, 10],
+            y=[data['cv_rmse'], data['cv_rmse']],
+            mode='lines',
+            name=f'{model_name} (cv_rmse)',
+            line=dict(width=2, dash='dash', color=colors[i])
+        )
+    )
+
+# Update layout
+fig.update_layout(
+    title='Training Loss and cv_rmse vs. Epoch for Different LSTM Models',
+    xaxis_title='Epoch',
+    yaxis_title='Loss / RMSE',
+    xaxis=dict(tickmode='linear', tick0=1, dtick=1),
+    yaxis=dict(range=[0, 0.8]),
+    legend=dict(
+        x=1.05,
+        y=1,
+        xanchor='left',
+        yanchor='top',
+        bgcolor='rgba(255, 255, 255, 0.5)',
+        bordercolor='Black',
+        borderwidth=1
+    ),
+    showlegend=True,
+    template='plotly_white'
+)
+
+# Show the plot
+fig.show()

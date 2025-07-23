@@ -26,19 +26,20 @@ def cal_cv_rmse(pred, y_true):
     return np.power(np.square(pred - y_true).sum() / pred.shape[0], 0.5) \
            / (y_true.sum() / pred.shape[0])
 
-def draw_results(label_list, pred_list, model_name):
+def draw_results(label_list, pred_list, model_name, batch_losses):
     mae_list = [abs(label_list[i] - pred_list[i]) for i in range(len(pred_list))]
     mae = sum(mae_list) / len(mae_list)
     rmse_list = [(label_list[i] - pred_list[i]) ** 2 for i in range(len(pred_list))]
     rmse = math.sqrt(sum(rmse_list) / len(rmse_list))
     cv_rmse = cal_cv_rmse(pred_list, label_list)
     print(f'cv_rmse: {cv_rmse}')
+    print(f'Average batch loss: {sum(batch_losses) / len(batch_losses):.6f}')
 
     fig = plt.figure(figsize=(10, 6))
     fig.add_subplot(111)
     plt.plot(range(len(pred_list)), pred_list, color='b', linewidth=1, label='Predicted CoolingLoad')
     plt.plot(range(len(label_list)), label_list, color='r', linewidth=1, label='CoolingLoad')
-    plt.title('Actual vs Forcast Cooling Load', loc='left')
+    plt.title('Actual vs Forecast Cooling Load', loc='left')
     plt.ylabel('CoolingLoad')
     plt.xlabel('Timestamp')
     plt.legend(loc='upper right')
@@ -81,7 +82,8 @@ def test_lstm(building_name):
 
     # start testing
     preds = []
-    for data_x, data_y in test_loader:
+    batch_losses = []  # List to store loss for each batch
+    for batch_idx, (data_x, data_y) in enumerate(test_loader):
         data_x = data_x.to(torch.float32)
         data_y = data_y.to(torch.float32)
 
@@ -89,6 +91,8 @@ def test_lstm(building_name):
         # Calculate loss for this batch
         loss = loss_fn(pred, data_y)
         loss_dict[building_name].append(loss.item())
+        batch_losses.append(loss.item())
+        print(f'Batch {batch_idx + 1}, Loss: {loss.item():.6f}')
 
         pred = pred.detach().numpy().squeeze()
         preds.append(pred)
@@ -114,4 +118,4 @@ def test_lstm(building_name):
         label_list.append(_label_list[k] * (load_max - load_min) + load_min)
         pred_list.append(_pred_list[k] * (load_max - load_min) + load_min)
 
-    draw_results(label_list, pred_list, model_name)
+    draw_results(label_list, pred_list, model_name, batch_losses)
