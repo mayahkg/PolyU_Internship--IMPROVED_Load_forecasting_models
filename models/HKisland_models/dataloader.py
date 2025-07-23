@@ -15,6 +15,11 @@ def one_hot(data, feature):
 
 # Scaling the Cooling Load Values between 0 to 1
 def normalize(df, temperature_min, temperature_max):
+    flow_rate_delta_min = df['flow_rate_delta'].min()
+    flow_rate_delta_max = df['Flow_rate_delta'].max()
+    df['nor_flow_rate_delta'] = 0
+    df['nor_flow_rate_delta'] = (df['flow_rate_delta'] - flow_rate_delta_min) / (flow_rate_delta_max  - flow_rate_delta_min)
+
     load_min = df['coolingLoad'].min()
     load_max = df['coolingLoad'].max()
     df['nor_cl'] = 0
