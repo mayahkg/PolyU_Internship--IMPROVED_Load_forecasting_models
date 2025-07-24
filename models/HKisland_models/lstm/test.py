@@ -1,6 +1,8 @@
+
 from config import *
 from torch.utils.data import DataLoader
 from models.HKisland_models.model_structures import *
+from .train import train_lstm, plot_train_test_losses
 
 import torch
 import pickle
@@ -26,6 +28,7 @@ def cal_cv_rmse(pred, y_true):
     return np.power(np.square(pred - y_true).sum() / pred.shape[0], 0.5) \
            / (y_true.sum() / pred.shape[0])
 
+
 def draw_results(label_list, pred_list, model_name, batch_losses):
     mae_list = [abs(label_list[i] - pred_list[i]) for i in range(len(pred_list))]
     mae = sum(mae_list) / len(mae_list)
@@ -48,7 +51,7 @@ def draw_results(label_list, pred_list, model_name, batch_losses):
     print(model_name)
 
 
-def test_lstm(building_name):
+def test_lstm(building_name, train_losses):
     print(building_name)
     model_name = 'lstm_{}'.format(building_name)
 
@@ -92,8 +95,6 @@ def test_lstm(building_name):
         loss = loss_fn(pred, data_y)
         loss_dict[building_name].append(loss.item())
         batch_losses.append(loss.item())
-        print(f'Batch {batch_idx + 1}, Loss: {loss.item():.6f}')
-
         pred = pred.detach().numpy().squeeze()
         preds.append(pred)
 
@@ -108,7 +109,7 @@ def test_lstm(building_name):
     for i in range(len(labels)):
         for j in range(len(labels[i])):
             _label_list.append(labels[i][j])
-
+    
     # note: pred may take more prediction results than label which is invalid
     _pred_list = _pred_list[:len(_label_list)]
 
@@ -119,3 +120,11 @@ def test_lstm(building_name):
         pred_list.append(_pred_list[k] * (load_max - load_min) + load_min)
 
     draw_results(label_list, pred_list, model_name, batch_losses)
+    
+    # Calculate average test loss
+    avg_test_loss = sum(batch_losses) / len(batch_losses)
+    
+    # Plot training and testing losses
+    plot_train_test_losses(train_losses, [avg_test_loss], building_name)
+
+    return batch_losses

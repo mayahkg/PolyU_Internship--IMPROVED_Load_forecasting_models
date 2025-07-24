@@ -1,8 +1,10 @@
+
 from config import *
 from torch.utils.data import DataLoader
 from models.HKisland_models.model_structures import *
 
 import pickle
+import matplotlib.pyplot as plt
 
 
 def train_lstm(building_name):
@@ -20,12 +22,15 @@ def train_lstm(building_name):
     train_set = TrainSet(X, Y)
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
 
-    # set up trained_models
+    # set up model
     model = LSTM(input_dim=input_dim,
                  hidden_dim=hidden_dim,
                  num_layers=num_layers)
     criterion = nn.L1Loss()
     model_optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+    # list to store average loss per epoch
+    epoch_losses = []
 
     # start training
     for epoch in range(num_epochs):
@@ -43,7 +48,9 @@ def train_lstm(building_name):
 
             l_sum += loss.item()
 
-        print('Epoch {}: loss = {}'.format(epoch + 1, l_sum / len(train_loader)))
+        avg_loss = l_sum / len(train_loader)
+        epoch_losses.append(avg_loss)
+        print('Epoch {}: loss = {}'.format(epoch + 1, avg_loss))
 
     # save model
     save_path = r'models/trained_models/{}_24h.pt'.format(model_name)
@@ -51,4 +58,23 @@ def train_lstm(building_name):
     print('model saved: {}'.format(save_path))
     print()
 
+    # return epoch losses for plotting
+    return epoch_losses
 
+
+def plot_train_test_losses(train_losses, test_losses, building_name):
+    """
+    Plot training and testing losses versus epoch.
+    """
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(1, len(train_losses) + 1), train_losses, label='Training Loss', color='blue')
+    # If test_losses is a single value, repeat it for the number of epochs
+    if len(test_losses) == 1:
+        test_losses = [test_losses[0]] * len(train_losses)
+    plt.plot(range(1, len(train_losses) + 1), test_losses, label='Testing Loss', color='red')
+    plt.title(f'Training and Testing Loss vs Epoch for {building_name}')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid(True)
+    plt.show()

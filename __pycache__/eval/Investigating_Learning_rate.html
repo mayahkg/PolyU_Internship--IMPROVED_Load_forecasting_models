@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Rate vs Epoch Loss Bar Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="lossChart" width="800" height="400"></canvas>
+    <script>
+        const ctx = document.getElementById('lossChart').getContext('2d');
+        const data = {
+            labels: ['Epoch 1', 'Epoch 2', 'Epoch 3', 'Epoch 4', 'Epoch 5', 'Epoch 6', 'Epoch 7', 'Epoch 8', 'Epoch 9', 'Epoch 10'],
+            datasets: [
+                {
+                    label: 'Learning Rate: 0.05',
+                    data: [0.11464499029582434, 0.04439532333971375, 0.04244319296503154, 0.04097059878935344, 0.03911625139795951, 0.03764295684051339, 0.036385148845232314, 0.034676339259765446, 0.033769514833162304, 0.03400114046776817],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Learning Rate: 0.03',
+                    data: [0.08502959731939065, 0.04417059101490644, 0.042223470231151056, 0.04098576704298493, 0.038488739013780644, 0.036230342367487234, 0.03562421068875459, 0.034303436286910606, 0.03381181603474338, 0.03305061661849057],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Learning Rate: 0.01',
+                    data: [0.06481781599186633, 0.0447956789148985, 0.0420322699513096, 0.03995391496722281, 0.038017625220283104, 0.036201270786623885, 0.034870802757948856, 0.03373449029278581, 0.033575569544612924, 0.032728422854612346],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Learning Rate: 0.009',
+                    data: [0.07005400874101332, 0.0446883814722082, 0.0420529833675301, 0.039819152128413644, 0.037734883327553745, 0.03557104357674609, 0.0356655942860746,0.034341069251081366, 0.033725101446365785, 0.03321121021235076],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Learning Rate: 0.001',
+                    data: [ 0.05987498604685721,0.03396862567178089, 0.02995946758637463, 0.028370295182196765,  0.027626324349837583, 0.027080899063688126, 0.026738369823807347,0.026331636361288328, 0.026056690141558647, 0.025779933607491264],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Learning Rate: 0.0009',
+                    data: [ 0.0858912349399859,0.05323775123505697, 0.04784710229422054, 0.045360638087030745,  0.043982528639535834, 0.04296037146862406, 0.04194933675012014,0.026331636361288328, 0.04006641708912641, 0.03916710749757986],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }    
+                
+            
+            ]
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Epoch'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Loss'
+                        },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Epoch Loss for Different Learning Rates'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

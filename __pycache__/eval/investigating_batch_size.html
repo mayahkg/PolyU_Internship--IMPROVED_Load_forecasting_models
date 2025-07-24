@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatter Plot with Power Regression - LSTM Loss</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            max-width: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        // Data for the datasets
+        const data64 = [
+            {x: 1, y: 0.2008},
+            {x: 2, y: 0.1136},
+            {x: 3, y: 0.0890},
+            {x: 4, y: 0.0779},
+            {x: 5, y: 0.0718},
+            {x: 6, y: 0.0669},
+            {x: 7, y: 0.0632},
+            {x: 8, y: 0.0606},
+            {x: 9, y: 0.0583},
+            {x: 10, y: 0.0566}
+        ];
+        const data48 = [
+            {x: 1, y: 0.1539},
+            {x: 2, y: 0.0865},
+            {x: 3, y: 0.0699},
+            {x: 4, y: 0.0619},
+            {x: 5, y: 0.0575},
+            {x: 6, y: 0.0547},
+            {x: 7, y: 0.0528},
+            {x: 8, y: 0.0512},
+            {x: 9, y: 0.0499},
+            {x: 10, y: 0.0489}
+        ];
+        const data40 = [
+            {x: 1, y: 0.1715},
+            {x: 2, y: 0.0922},
+            {x: 3, y: 0.0738},
+            {x: 4, y: 0.0667},
+            {x: 5, y: 0.0617},
+            {x: 6, y: 0.0585},
+            {x: 7, y: 0.0559},
+            {x: 8, y: 0.0539},
+            {x: 9, y: 0.0522},
+            {x: 10, y: 0.0508}
+        ];
+        const data56 = [
+            {x: 1, y: 0.1561},
+            {x: 2, y: 0.0948},
+            {x: 3, y: 0.0771},
+            {x: 4, y: 0.0677},
+            {x: 5, y: 0.0617},
+            {x: 6, y: 0.0595},
+            {x: 7, y: 0.0572},
+            {x: 8, y: 0.0554},
+            {x: 9, y: 0.0539},
+            {x: 10, y: 0.0525}
+        ];
+        const data44 = [
+            {x: 1, y: 0.1641},
+            {x: 2, y: 0.0961},
+            {x: 3, y: 0.0756},
+            {x: 4, y: 0.0662},
+            {x: 5, y: 0.0610},
+            {x: 6, y: 0.0580},
+            {x: 7, y: 0.0556},
+            {x: 8, y: 0.0539},
+            {x: 9, y: 0.0524},
+            {x: 10, y: 0.0511}
+        ];
+        const data52 = [
+            {x: 1, y: 0.1709},
+            {x: 2, y: 0.0951},
+            {x: 3, y: 0.0764},
+            {x: 4, y: 0.0674},
+            {x: 5, y: 0.0631},
+            {x: 6, y: 0.0603},
+            {x: 7, y: 0.0581},
+            {x: 8, y: 0.0563},
+            {x: 9, y: 0.0550},
+            {x: 10, y: 0.0540}
+        ];
+
+        // Function to calculate power regression coefficients
+        function powerRegression(data) {
+            const logX = data.map(point => Math.log(point.x));
+            const logY = data.map(point => Math.log(point.y));
+            const n = data.length;
+
+            const sumLogX = logX.reduce((a, b) => a + b, 0);
+            const sumLogY = logY.reduce((a, b) => a + b, 0);
+            const sumLogX2 = logX.reduce((a, b) => a + b * b, 0);
+            const sumLogXY = logX.reduce((sum, logX, i) => sum + logX * logY[i], 0);
+
+            const slope = (n * sumLogXY - sumLogX * sumLogY) / (n * sumLogX2 - sumLogX * sumLogX);
+            const intercept = (sumLogY - slope * sumLogX) / n;
+
+            return { a: Math.exp(intercept), b: slope };  // y = a * x^b
+        }
+
+        // Function to generate power regression curve data
+        function generatePowerCurve(coefficients, xValues) {
+            return xValues.map(x => ({ x, y: coefficients.a * Math.pow(x, coefficients.b) }));
+        }
+
+        // Calculate power regression
+        const coeffs64 = powerRegression(data64);
+        const coeffs48 = powerRegression(data48);
+        const coeffs40 = powerRegression(data40);
+        const coeffs56 = powerRegression(data56);
+        const coeffs44 = powerRegression(data44);
+        const coeffs52 = powerRegression(data52);
+        const powerCurve64 = generatePowerCurve(coeffs64, Array.from({length: 10}, (_, i) => i + 1));
+        const powerCurve48 = generatePowerCurve(coeffs48, Array.from({length: 10}, (_, i) => i + 1));
+        const powerCurve40 = generatePowerCurve(coeffs40, Array.from({length: 10}, (_, i) => i + 1));
+        const powerCurve56 = generatePowerCurve(coeffs56, Array.from({length: 10}, (_, i) => i + 1));
+        const powerCurve44 = generatePowerCurve(coeffs44, Array.from({length: 10}, (_, i) => i + 1));
+        const powerCurve52 = generatePowerCurve(coeffs52, Array.from({length: 10}, (_, i) => i + 1));
+
+        const myChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'CP1 Loss (Batch Size 64)',
+                        data: data64,
+                        backgroundColor: '#007bff',
+                        borderColor: '#007bff',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'CP1 Loss (Batch Size 48)',
+                        data: data48,
+                        backgroundColor: '#ff5733',
+                        borderColor: '#ff5733',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'CP1 Loss (Batch Size 40)',
+                        data: data40,
+                        backgroundColor: '#28a745',
+                        borderColor: '#28a745',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'CP1 Loss (Batch Size 56)',
+                        data: data56,
+                        backgroundColor: '#ffc107',
+                        borderColor: '#ffc107',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'CP1 Loss (Batch Size 44)',
+                        data: data44,
+                        backgroundColor: '#17a2b8',
+                        borderColor: '#17a2b8',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'CP1 Loss (Batch Size 52)',
+                        data: data52,
+                        backgroundColor: '#6f42c1',
+                        borderColor: '#6f42c1',
+                        pointRadius: 5,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'Power Regression (Batch Size 64)',
+                        data: powerCurve64,
+                        type: 'line',
+                        borderColor: '#007bff',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Power Regression (Batch Size 48)',
+                        data: powerCurve48,
+                        type: 'line',
+                        borderColor: '#ff5733',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Power Regression (Batch Size 40)',
+                        data: powerCurve40,
+                        type: 'line',
+                        borderColor: '#28a745',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Power Regression (Batch Size 56)',
+                        data: powerCurve56,
+                        type: 'line',
+                        borderColor: '#ffc107',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Power Regression (Batch Size 44)',
+                        data: powerCurve44,
+                        type: 'line',
+                        borderColor: '#17a2b8',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Power Regression (Batch Size 52)',
+                        data: powerCurve52,
+                        type: 'line',
+                        borderColor: '#6f42c1',
+                        borderWidth: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Epoch'
+                        },
+                        type: 'linear',
+                        min: 1,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Loss'
+                        },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Per-Epoch Loss for LSTM (CP1, Batch Sizes 64, 48, 40, 56, 44, and 52) with Power Regression'
+                    },
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
