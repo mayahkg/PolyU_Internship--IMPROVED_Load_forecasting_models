@@ -1,40 +1,52 @@
 import matplotlib.pyplot as plt
 
-# Training and testing loss data
-epochs = list(range(1, 11))
-training_loss = [
-    0.1634052266765918,
-    0.09750400705351717,
-    0.0775635581064437,
-    0.0679394865098099,
-    0.06255944638646074,
-    0.058912274782501516,
-    0.05647065851926094,
-    0.05440592889984449,
-    0.052817361163241525,
-    0.05145589051590789
+# Training loss data
+epochs_train = list(range(1, 16))
+loss_train = [
+    0.1619178733409761,
+    0.09330836405138393,
+    0.07609995139332917,
+    0.06832024825552663,
+    0.06299913291829629,
+    0.059438422854457586,
+    0.05707410039318787,
+    0.054981063232644574,
+    0.053332246389690335,
+    0.052001691433590846,
+    0.050818646367598364,
+    0.0497996197952019,
+    0.049002890628609026,
+    0.04832774110056542,
+    0.04770895695457092
 ]
-testing_loss = [
-    0.13848124502138012,
-    0.08729798408846061,
-    0.07313560186663554,
-    0.0657184460377764,
-    0.06081610002244512,
-    0.057843350361855256,
-    0.05559414057504563,
-    0.053813912107476165,
-    0.05253765257518916,
-    0.05147488798857445
+
+# Testing loss data
+epochs_test = list(range(1, 16))
+loss_test = [
+    0.16474138445906586,
+    0.0947789979668764,
+    0.07578983984805726,
+    0.06734068683543049,
+    0.062486297850097926,
+    0.059081952507188035,
+    0.056562008397592296,
+    0.05458439870195075,
+    0.052993183075399186,
+    0.0517224201134273,
+    0.05044616975790852,
+    0.04951469749621638,
+    0.0487527777082645,
+    0.0479780951576246,
+    0.04743415426340077
 ]
 
 # Plotting
 plt.figure(figsize=(10, 5))
-plt.plot(epochs, training_loss, label='Training Loss', marker='o')
-plt.plot(epochs, testing_loss, label='Testing Loss', marker='o')
-plt.title('Training and Testing Loss Over Epochs')
+plt.plot(epochs_train, loss_train, label='Training Loss', marker='o')
+plt.plot(epochs_test, loss_test, label='Testing Loss', marker='o', linestyle='--')
+plt.title('Loss per Epoch')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
-plt.xticks(epochs)
 plt.legend()
 plt.grid()
 plt.show()

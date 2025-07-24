@@ -25,12 +25,12 @@ sparse_ed_lambda = 1e-5
 train_ratio = 0.5
 
 # how many sequences do you use
-batch_size = 52
+batch_size = 48
 
 # medium rate
 learning_rate = 0.0001
 
 # time of iteration
-num_epochs = 10
+num_epochs = 15
 
 
